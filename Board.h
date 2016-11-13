@@ -5,9 +5,12 @@
 
 class Board {
 public:
+	const size_t size;
+
 	Board(size_t size);
 	virtual ~Board();
 	void add_queen(int row, int column);
+	void remove_queen(int row, int column);
 	int queens_in_row(int row);
 	int queens_in_column(int column);
 	int queens_in_ldiagonal(int row, int column);
@@ -17,7 +20,6 @@ public:
 private:
 	int reflect(int col);
 	int *queens;
-	size_t n;
 };
 
 #endif

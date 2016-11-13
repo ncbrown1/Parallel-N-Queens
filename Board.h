@@ -1,3 +1,6 @@
+#ifndef NQUEENS_BOARD_H
+#define NQUEENS_BOARD_H
+
 #include <cstddef>
 
 class Board {
@@ -16,3 +19,5 @@ private:
 	int *queens;
 	size_t n;
 };
+
+#endif

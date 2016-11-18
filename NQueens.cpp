@@ -12,7 +12,8 @@ bool place_queen(Board &board, int row, int column) {
   return true;
 }
 
-int solve(Board &board, int column) {
+
+int solve_serial(Board &board, int column) {
   int i;
   int num_solutions = 0;
 
@@ -25,7 +26,7 @@ int solve(Board &board, int column) {
               // if we are at the end, mark as solution
               ? num_solutions + 1
               // if more columns, recursively add next columns solution
-              : num_solutions + solve(board, column + 1);
+              : num_solutions + solve_serial(board, column + 1);
 
       // and remove the queen for next check
       board.remove_queen(i, column);
@@ -35,6 +36,31 @@ int solve(Board &board, int column) {
   return num_solutions;
 }
 
-int solve(Board &board) {
-  return solve(board, 0);
+
+int solve_parallel(Board &board, int column) {
+  return 1;
+}
+
+
+int solve_opt1(Board &board, int column) {
+  return 2;
+}
+
+
+int solve_opt2(Board &board, int column) {
+  return 3;
+}
+
+
+int solve(Board &board, int flag) {
+  switch(flag) {
+    case PARALLEL:
+      return solve_parallel(board, 0);
+    case OPT1:
+      return solve_opt1(board, 0);
+    case OPT2:
+      return solve_opt2(board, 0);
+    case SERIAL: default:
+      return solve_serial(board, 0);
+  }
 }

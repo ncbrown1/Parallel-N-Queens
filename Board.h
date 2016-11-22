@@ -9,6 +9,7 @@ public:
 
 	Board(size_t size);
 	virtual ~Board();
+  Board(const Board &other);
 	void add_queen(int row, int column);
 	void remove_queen(int row, int column);
 	int queens_in_row(int row);

@@ -13,6 +13,13 @@ Board::~Board() {
 	delete[] queens;
 }
 
+Board::Board(const Board &other) {
+  queens = new int[other.size];
+  for (size_t i = 0; i < other.size; ++i) {
+    queens[i] = other.queens[i];
+  }
+}
+
 void Board::add_queen(int row, int column) {
 	queens[column] = row;
 }

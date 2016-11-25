@@ -3,11 +3,14 @@
 #include <iostream>
 #include "Board.h"
 #include "NQueens.h"
+#include "gettime.h"
 
 
 int main(int argc, char *argv[]) {
   int size;
   int flag;
+  long t1, t2;
+  double elapsed;
   if (argc < 2) {
     std::cout << "USAGE: ./nqueens [-s|-p|-o1|-o2] <size>" << std::endl;
     return 1;
@@ -29,7 +32,11 @@ int main(int argc, char *argv[]) {
   std::cout << "optimization level = " << flag << std::endl;
   
   std::cout << "Created a board and now calculating number of solutions..." << std::endl;
+  t1 = util_gettime();
   std::cout << "There are " << solve(board, flag) << " solutions to N-Queens for n = " << size << "." << std::endl;
+  t2 = util_gettime();
+  elapsed = (t2-t1)/(1000.f);
+  std::cout << "Total elapsed time: " << elapsed << " seconds" << std::endl;
 
   return 0;
 }

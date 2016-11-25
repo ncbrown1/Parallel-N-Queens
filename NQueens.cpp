@@ -2,10 +2,7 @@
 
 bool place_queen(Board &board, int row, int column) {
   board.add_queen(row, column);
-  if (board.queens_in_row(row) > 1
-      || board.queens_in_column(column) > 1
-      || board.queens_in_ldiagonal(row, column) > 1
-      || board.queens_in_rdiagonal(row, column) > 1) {
+  if (!board.validate_queen(row, column)) {
     board.remove_queen(row, column);
     return false;
   }

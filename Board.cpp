@@ -13,7 +13,7 @@ Board::~Board() {
 	delete[] queens;
 }
 
-Board::Board(const Board &other) {
+Board::Board(const Board &other) : size(other.size) {
   queens = new int[other.size];
   for (size_t i = 0; i < other.size; ++i) {
     queens[i] = other.queens[i];
@@ -77,4 +77,26 @@ int Board::queens_in_rdiagonal(int row, int column) {
 
 
 	return right_diag_count;
+}
+
+bool Board::validate_queen(int row, int column) {
+  if (queens_in_row(row) > 1
+      || queens_in_column(column) > 1
+      || queens_in_ldiagonal(row, column) > 1
+      || queens_in_rdiagonal(row, column) > 1) {
+    return false;
+  }
+  return true;
+}
+
+bool Board::validate_nqueens(int offset)  {
+  int i;
+  for(i=offset; i<size; i++) {
+    if (!validate_queen(queens[i], i)) return false;
+  }
+  return true;
+}
+
+bool Board::validate_nqueens()  {
+  return validate_nqueens(0);
 }

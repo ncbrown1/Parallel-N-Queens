@@ -17,6 +17,9 @@ public:
 	int queens_in_ldiagonal(int row, int column);
 	int queens_in_rdiagonal(int row, int column);
 	bool queen_at(int row, int column);
+  bool validate_queen(int row, int column);
+  bool validate_nqueens(int offset);
+  bool validate_nqueens();
 
 private:
 	int reflect(int col);

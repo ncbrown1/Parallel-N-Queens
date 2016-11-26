@@ -1,4 +1,9 @@
 #include "NQueens.h"
+#include <cilk/cilk.h>
+#include <cilk/reducer_opadd.h>
+
+// global solution count for parallel calls
+cilk::reducer_opadd<double> nqueens_solutions(0);
 
 bool place_queen(Board &board, int row, int column) {
   board.add_queen(row, column);
@@ -34,8 +39,27 @@ int solve_serial(Board &board, int column) {
 }
 
 
-int solve_parallel(Board &board, int column) {
-  return 1;
+int solve_parallel(Board board, int column) {
+  int i;
+
+  // if we got a solution
+  if (column >= board.size) {
+    *nqueens_solutions += 1;
+    return nqueens_solutions.get_value();
+  }
+
+  // for each possible queen placement
+  for (i = 0; i < board.size; i++) {
+    if (place_queen(board, i, column)) { // if it is a valid move, we place it
+      // check the rest of the board in parallel
+      cilk_spawn solve_parallel(board, column+1);
+      // and remove the queen for next check
+      board.remove_queen(i, column);
+    }
+  }
+
+  cilk_sync;
+  return nqueens_solutions.get_value();
 }
 
 

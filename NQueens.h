@@ -8,7 +8,7 @@
 bool place_queen(Board &board, int row, int column);
 
 int solve_serial(Board &board, int column);
-int solve_parallel(Board &board, int column);
+int solve_parallel(Board board, int column);
 int solve_opt1(Board &board, int column);
 int solve_opt2(Board &board, int column);
 

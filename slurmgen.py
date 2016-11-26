@@ -17,7 +17,7 @@ template = """#!/bin/bash
 
 export CILK_NWORKERS=%s
 cd /home/$USER/nqueens/
-./nqueens %s
+./nqueens -p %s
 """
 
 procs = sys.argv[1]

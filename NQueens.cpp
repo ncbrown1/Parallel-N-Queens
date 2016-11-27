@@ -72,22 +72,11 @@ int solve_opt1(const size_t size) {
 
 	// Evaluate each board permutation in parallel
 	cilk_for (int i = 0; i < factorial; ++i) {
-		Board perm_board = Board();
-		perm_board.init_permutation(i); // unique permutation for each worker
-
+		Board board = Board(size);
+		board.init_permutation(i); // unique permutation for each worker
 
 		// Test each queen placement on board to see if there are conflicts
-		bool is_valid = true;;
-		for (int i = 0; i < n; ++i) {
-			if (board.queens_in_ldiagonal(i, perm[i]) != 0 ||
-					board.queens_in_rdiagonal(i, perm[i]) != 0) {
-
-				is_valid = false;
-				break; // permutation contains conflicts
-			}
-		}
-
-		if (is_valid) {
+		if (board.validate_nqueens()) { // TODO maybe change this to just manually check diagonals at some point
 			*nqueens_solutions += 1;
 		}
 	}

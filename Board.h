@@ -32,6 +32,7 @@ public:
 	const size_t size;
 
 	CBoard(size_t size);
+	CBoard(Board b);
 	virtual ~CBoard();
 	CBoard(const CBoard &other);
 

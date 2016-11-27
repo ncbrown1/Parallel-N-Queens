@@ -85,7 +85,7 @@ int solve_opt1(const size_t size) {
 }
 
 
-int solve_opt2(Board board) {
+int solve_opt2(CBoard board) {
     int i;
 
     // if we got a solution
@@ -116,7 +116,7 @@ int solve(Board &board, int flag) {
     case OPT1:
       return solve_opt1(board.size);
     case OPT2:
-      return solve_opt2(board);
+      return solve_opt2(CBoard(board));
     case SERIAL: default:
       return solve_serial(board, 0);
   }

@@ -140,6 +140,7 @@ bool Board::validate_nqueens()  {
 
 
 CBoard::CBoard(size_t size) : size(size), last_index(-1), last(NULL) {}
+CBoard::CBoard(Board b) : size(b.size), last_index(-1), last(NULL) {}
 CBoard::~CBoard() {
 	Column *tmp;
 	while (last != NULL) {

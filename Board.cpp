@@ -31,6 +31,12 @@ Board::Board(const Board &other) : size(other.size) {
 void Board::init_permutation(int perm_index) {
 	// Compute the factorial form of the decimal number n
 	// This gives us the so-called Lehmer code
+
+	// Ensure queens are zero initialized
+	for (int i = 0; i < size; ++i) {
+		queens[i] = 0;
+	}
+
 	int last = perm_index;
 	for (int i = 1; i <= size; ++i) {
 		if (last == 0) { // break whenever last quotient is zero

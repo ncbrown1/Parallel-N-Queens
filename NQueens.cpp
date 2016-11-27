@@ -103,9 +103,9 @@ int solve_opt2(Column *last, int column, size_t size) {
         back_n = 1;
         valid = true;
         while (tmp != NULL) {
-            if (tmp->value == row || // if in same row
-                tmp->value - back_n == row || // if in left diag
-                tmp->value + back_n == row )  { // if in right diag
+            if (tmp->value == i || // if in same row
+                tmp->value - back_n == i || // if in left diag
+                tmp->value + back_n == i )  { // if in right diag
                 valid = false; // invalid queen
                 break;
             }

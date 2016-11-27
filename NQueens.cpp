@@ -63,8 +63,36 @@ int solve_parallel(Board board, int column) {
 }
 
 
-int solve_opt1(Board &board, int column) {
-  return 2;
+int solve_opt1(const size_t size) {
+	// compute factorial(size)
+	int factorial = 1;
+	for (int i = 1; i <= size; ++i) {
+		factorial *= i;
+	}
+
+	// Evaluate each board permutation in parallel
+	cilk_for (int i = 0; i < factorial; ++i) {
+		Board perm_board = Board();
+		perm_board.init_permutation(i); // unique permutation for each worker
+
+
+		// Test each queen placement on board to see if there are conflicts
+		bool is_valid = true;;
+		for (int i = 0; i < n; ++i) {
+			if (board.queens_in_ldiagonal(i, perm[i]) != 0 ||
+					board.queens_in_rdiagonal(i, perm[i]) != 0) {
+
+				is_valid = false;
+				break; // permutation contains conflicts
+			}
+		}
+
+		if (is_valid) {
+			*nqueens_solutions += 1;
+		}
+	}
+
+  return nqueens_solutions.get_value();
 }
 
 
@@ -78,7 +106,7 @@ int solve(Board &board, int flag) {
     case PARALLEL:
       return solve_parallel(board, 0);
     case OPT1:
-      return solve_opt1(board, 0);
+      return solve_opt1(board.size);
     case OPT2:
       return solve_opt2(board, 0);
     case SERIAL: default:

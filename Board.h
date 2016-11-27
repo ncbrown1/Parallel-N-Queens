@@ -27,6 +27,13 @@ private:
 	int *queens;
 };
 
+class Column {
+public:
+	Column *prev; // the solution up to this column
+	int value;
+	Column(Column *prev, int value) : prev(prev), value(value) {}
+};
+
 class CBoard {
 public:
 	const size_t size;
@@ -43,12 +50,6 @@ public:
 private:
 	int last_index;
 	Column *last;
-}
-
-class Column {
-	Column *prev; // the solution up to this column
-	int value;
-	Column(Column *prev, int value) : prev(prev), value(value) {}
-}
+};
 
 #endif

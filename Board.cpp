@@ -169,7 +169,7 @@ bool CBoard::is_complete() {
 	return last_index == size-1;
 }
 
-bool add_queen(int row) {
+bool CBoard::add_queen(int row) {
 	if (is_complete() || row > size) return false;
 	Column *tmp = last;
 	int back_n = 1;
@@ -188,10 +188,11 @@ bool add_queen(int row) {
 	return true;
 }
 
-bool remove_queen() {
+bool CBoard::remove_queen() {
 	if (last == NULL) return false;
 	last_index -= 1;
 	Column * tmp = last->prev;
 	delete last;
 	last = tmp;
+  return true;
 }

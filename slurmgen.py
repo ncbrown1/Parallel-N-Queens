@@ -8,9 +8,9 @@ import sys
 template = """#!/bin/bash
 #SBATCH --job-name="nqueens"
 #SBATCH --output="nqueens.%s.%s.%s.out"
-#SBATCH --partition=shared
+#SBATCH --partition=compute
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=%s
+#SBATCH --ntasks-per-node=1
 #SBATCH --export=ALL
 #SBATCH -t 00:30:00
 #SBATCH -A TG-ASC160059
@@ -26,4 +26,4 @@ if len(sys.argv) > 3:
   flag = sys.argv[3]
 else:
   flag = "-p"
-print template % (flag[1:], procs, n, procs, procs, flag, n)
+print template % (flag[1:], procs, n, procs, flag, n)

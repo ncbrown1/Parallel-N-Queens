@@ -94,7 +94,7 @@ int solve_opt2(Column *last, int column, size_t size) {
     if (column == size) {
         delete last;
         *nqueens_solutions += 1;
-        return nqueens_solutions.get_value();
+        return 0; // only first call needs access to nqueens_solutions
     }
 
     // for each possible queen placement
@@ -119,7 +119,10 @@ int solve_opt2(Column *last, int column, size_t size) {
     }
 
     cilk_sync;
-    if (last != NULL) delete last;
+    if (last != NULL) {
+        delete last;
+        return 0; // only first call needs access to nqueens_solutions
+    }
     return nqueens_solutions.get_value();
 }
 

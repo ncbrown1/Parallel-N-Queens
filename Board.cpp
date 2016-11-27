@@ -20,6 +20,37 @@ Board::Board(const Board &other) : size(other.size) {
   }
 }
 
+
+// Set board to be a permutation of integers 1 - N based on the perm_index
+//
+// This algorithm uses Lehmer codes to generate the perm-index-th permutation
+// of the numbers 1-N.  See https://en.wikipedia.org/wiki/Lehmer_code and
+// https://en.wikipedia.org/wiki/Factorial_number_system#Permutations for more
+// information on permutations and factorial numbering
+
+void Board::init_permutation(int perm_index) {
+	// Compute the factorial form of the decimal number n
+	// This gives us the so-called Lehmer code
+	int last = perm_index;
+	for (int i = 1; i <= size; ++i) {
+		if (last == 0) { // break whenever last quotient is zero
+			break;
+		}
+		queens[size - i] = last % i;
+		last /= i;
+	}
+
+	// Convert the actual permutation from the Lehmer code
+	for (int i = size - 1; i >= 0; --i) { // Beginning from right and move left
+		for (int j = i + 1; j < size ; ++j) {
+			if (queens[j] >= queens[i]) {
+				// For all elements to the right of our position are greater/equal, increment them
+				++queens[j];
+			}
+		}
+	}
+}
+
 void Board::add_queen(int row, int column) {
 	queens[column] = row;
 }

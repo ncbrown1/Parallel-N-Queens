@@ -34,22 +34,4 @@ public:
 	Column(Column *prev, int value) : prev(prev), value(value) {}
 };
 
-class CBoard {
-public:
-	const size_t size;
-
-	CBoard(size_t size);
-	CBoard(Board b);
-	virtual ~CBoard();
-	CBoard(const CBoard &other);
-
-	Column *get(int index);
-	bool is_complete();
-	bool add_queen(int row);
-	bool remove_queen();
-private:
-	int last_index;
-	Column *last;
-};
-
 #endif

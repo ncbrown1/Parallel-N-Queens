@@ -85,26 +85,41 @@ int solve_opt1(const size_t size) {
 }
 
 
-int solve_opt2(CBoard board) {
-    int i;
+int solve_opt2(Column *last, int column, size_t size) {
+    int i, back_n;
+    bool valid;
+    Column *tmp;
 
     // if we got a solution
-    if (board.is_complete()) {
+    if (column == size) {
+        delete last;
         *nqueens_solutions += 1;
         return nqueens_solutions.get_value();
     }
 
     // for each possible queen placement
-    for (i = 0; i < board.size; i++) {
-        if (board.add_queen(i)) {
+    for (i = 0; i < size; i++) {
+        tmp = last;
+        back_n = 1;
+        valid = true;
+        while (tmp != NULL) {
+            if (tmp->value == row || // if in same row
+                tmp->value - back_n == row || // if in left diag
+                tmp->value + back_n == row )  { // if in right diag
+                valid = false; // invalid queen
+                break;
+            }
+            tmp = tmp->prev;
+            back_n += 1;
+        }
+        if (valid) {
             // check the rest of the board in parallel
-            cilk_spawn solve_opt2(board);
-            // and remove the queen for next check
-            board.remove_queen();
+            cilk_spawn solve_opt2(new Column(last, i), column + 1, size);
         }
     }
 
     cilk_sync;
+    if (last != NULL) delete last;
     return nqueens_solutions.get_value();
 }
 
@@ -116,7 +131,7 @@ int solve(Board &board, int flag) {
     case OPT1:
       return solve_opt1(board.size);
     case OPT2:
-      return solve_opt2(CBoard(board));
+      return solve_opt2(NULL, 0, board.size);
     case SERIAL: default:
       return solve_serial(board, 0);
   }

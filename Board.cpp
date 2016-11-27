@@ -20,6 +20,7 @@ Board::Board(const Board &other) : size(other.size) {
   }
 }
 
+Board::Board(int *layout, size_t size) : queens(layout), size(size) {}
 
 // Set board to be a permutation of integers 1 - N based on the perm_index
 //
@@ -60,10 +61,16 @@ void Board::remove_queen(int row, int column) {
 }
 
 bool Board::queen_at(int row, int column) {
+	if (row == -1) {
+		return false;
+	}
 	return queens[column] == row;
 }
 
 int Board::queens_in_row(int row) {
+	if (row == -1) {
+		return 0;
+	}
 	int count = 0;
 	for (size_t col = 0; col < size; ++col) {
 		count = queens[col] == row ? count + 1 : count;

@@ -64,35 +64,54 @@ int solve_parallel(Board board, int column) {
 
 
 int solve_opt1(const size_t size) {
-	// compute factorial(size)
-	int factorial = 1;
-	for (int i = 1; i <= size; ++i) {
-		factorial *= i;
+	int array[size];
+	int branch[size];
+	bool visited[size];
+	for (int i = 0; i < size; ++i) {
+		array[i] = i;
+		branch[i] = -1;
+		visited[i] = false;
 	}
-
-	// Evaluate each board permutation in parallel
-	cilk_for (int i = 0; i < factorial; ++i) {
-		Board perm_board = Board();
-		perm_board.init_permutation(i); // unique permutation for each worker
-
-
-		// Test each queen placement on board to see if there are conflicts
-		bool is_valid = true;;
-		for (int i = 0; i < n; ++i) {
-			if (board.queens_in_ldiagonal(i, perm[i]) != 0 ||
-					board.queens_in_rdiagonal(i, perm[i]) != 0) {
-
-				is_valid = false;
-				break; // permutation contains conflicts
-			}
-		}
-
-		if (is_valid) {
-			*nqueens_solutions += 1;
-		}
-	}
+	dfs_permute(array, size, branch, 0, visited);
 
   return nqueens_solutions.get_value();
+}
+
+int count = 0;
+void dfs_permute(int *numbers, int size, int *branch, int length, bool *visited) {
+	int *next_branch = new int[size];
+
+	// Copy and init board layout for this path
+	for (int i = 0; i < length; ++i) {
+		next_branch[i] = branch[i];
+	}
+	for (int i = length; i < size; ++i) {
+		next_branch[i] = -1;
+	}
+
+	Board board = Board(next_branch, size);
+
+	// Don't continue down this path of permutations if there's a conflict
+	// This can hugely reduce the problem search space
+	if (!board.validate_nqueens()) {
+		return;
+	}
+
+	if (length == size){
+		++count;
+	}
+
+	for (int i = 0; i < size; i++) {
+		// For all elements that haven't been used in permutation
+		if (!visited[i]) {
+			// Add to permutation
+			next_branch[length] = numbers[i];
+			visited[i] = true;
+			// Permute remaining elements
+			dfs_permute(numbers, size, next_branch, length+ 1, visited);
+			visited[i] = false;
+		}
+	}
 }
 
 

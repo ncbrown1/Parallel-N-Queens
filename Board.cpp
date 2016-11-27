@@ -137,3 +137,60 @@ bool Board::validate_nqueens(int offset)  {
 bool Board::validate_nqueens()  {
   return validate_nqueens(0);
 }
+
+
+CBoard::CBoard(size_t size) : size(size), last_index(-1), last(NULL) {}
+CBoard::~CBoard() {
+	Column *tmp;
+	while (last != NULL) {
+		tmp = last->prev;
+		delete last;
+		last = tmp;
+	}
+	last = NULL;
+}
+CBoard::CBoard(const CBoard &other)
+	: size(other.size), last_index(other.last_index), last(other.last) {}
+
+Column * CBoard::get(int index) {
+	Column * tmp = last;
+	int i = last_index;
+	if (index < 0 || index >= last_index)
+		return NULL;
+	while (i != index && tmp != NULL) {
+		tmp = tmp->prev;
+		i--;
+	}
+	return tmp;
+}
+
+bool CBoard::is_complete() {
+	return last_index == size-1;
+}
+
+bool add_queen(int row) {
+	if (is_complete() || row > size) return false;
+	Column *tmp = last;
+	int back_n = 1;
+	while (tmp != NULL) {
+		if (tmp->value == row || // if in same row
+			tmp->value - back_n == row || // if in left diag
+			tmp->value + back_n == row )  { // if in right diag
+			return false; // invalid queen
+		}
+		tmp = tmp->prev;
+		back_n += 1;
+	}
+	Column * col = new Column(last, row);
+	last = col;
+	last_index += 1;
+	return true;
+}
+
+bool remove_queen() {
+	if (last == NULL) return false;
+	last_index -= 1;
+	Column * tmp = last->prev;
+	delete last;
+	last = tmp;
+}

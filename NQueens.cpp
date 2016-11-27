@@ -85,8 +85,27 @@ int solve_opt1(const size_t size) {
 }
 
 
-int solve_opt2(Board &board, int column) {
-  return 3;
+int solve_opt2(Board board) {
+    int i;
+
+    // if we got a solution
+    if (board.is_complete()) {
+        *nqueens_solutions += 1;
+        return nqueens_solutions.get_value();
+    }
+
+    // for each possible queen placement
+    for (i = 0; i < board.size; i++) {
+        if (board.add_queen(i)) {
+            // check the rest of the board in parallel
+            cilk_spawn solve_opt2(board);
+            // and remove the queen for next check
+            board.remove_queen();
+        }
+    }
+
+    cilk_sync;
+    return nqueens_solutions.get_value();
 }
 
 
@@ -97,7 +116,7 @@ int solve(Board &board, int flag) {
     case OPT1:
       return solve_opt1(board.size);
     case OPT2:
-      return solve_opt2(board, 0);
+      return solve_opt2(board);
     case SERIAL: default:
       return solve_serial(board, 0);
   }

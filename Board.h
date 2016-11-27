@@ -27,4 +27,27 @@ private:
 	int *queens;
 };
 
+class CBoard {
+public:
+	const size_t size;
+
+	CBoard(size_t size);
+	virtual ~CBoard();
+	CBoard(const CBoard &other);
+
+	Column *get(int index);
+	bool is_complete();
+	bool add_queen(int row);
+	bool remove_queen();
+private:
+	int last_index;
+	Column *last;
+}
+
+class Column {
+	Column *prev; // the solution up to this column
+	int value;
+	Column(Column *prev, int value) : prev(prev), value(value) {}
+}
+
 #endif

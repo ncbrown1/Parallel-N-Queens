@@ -1,6 +1,7 @@
 #include "NQueens.h"
 #include <cilk/cilk.h>
 #include <cilk/reducer_opadd.h>
+#include <vector>
 
 // global solution count for parallel calls
 cilk::reducer_opadd<double> nqueens_solutions(0);
@@ -66,19 +67,17 @@ int solve_parallel(Board board, int column) {
 int solve_opt1(const size_t size) {
 	int array[size];
 	int branch[size];
-	bool visited[size];
+	std::vector<bool> visited = std::vector<bool>(size, false);
 	for (int i = 0; i < size; ++i) {
 		array[i] = i;
 		branch[i] = -1;
-		visited[i] = false;
 	}
 	dfs_permute(array, size, branch, 0, visited);
 
   return nqueens_solutions.get_value();
 }
 
-int count = 0;
-void dfs_permute(int *numbers, int size, int *branch, int length, bool *visited) {
+void dfs_permute(int *numbers, int size, int *branch, int length, std::vector<bool> &visited) {
 	int *next_branch = new int[size];
 
 	// Copy and init board layout for this path
@@ -89,6 +88,8 @@ void dfs_permute(int *numbers, int size, int *branch, int length, bool *visited)
 		next_branch[i] = -1;
 	}
 
+	std::vector<bool> new_visited = std::vector<bool>(visited);
+
 	Board board = Board(next_branch, size);
 
 	// Don't continue down this path of permutations if there's a conflict
@@ -97,21 +98,23 @@ void dfs_permute(int *numbers, int size, int *branch, int length, bool *visited)
 		return;
 	}
 
-	if (length == size){
-		++count;
+	if (length == size) {
+		*nqueens_solutions += 1;
+		return;
 	}
 
 	for (int i = 0; i < size; i++) {
 		// For all elements that haven't been used in permutation
-		if (!visited[i]) {
+		if (!new_visited[i]) {
 			// Add to permutation
 			next_branch[length] = numbers[i];
-			visited[i] = true;
+			new_visited[i] = true;
 			// Permute remaining elements
-			dfs_permute(numbers, size, next_branch, length+ 1, visited);
-			visited[i] = false;
+			cilk_spawn dfs_permute(numbers, size, next_branch, length+ 1, new_visited);
+			new_visited[i] = false;
 		}
 	}
+	cilk_sync;
 }
 
 

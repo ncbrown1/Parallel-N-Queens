@@ -2,6 +2,8 @@
 #include <cilk/cilk.h>
 #include <cilk/reducer_opadd.h>
 #include <vector>
+#include <iostream>
+#include "Tree.h"
 
 // global solution count for parallel calls
 cilk::reducer_opadd<double> nqueens_solutions(0);
@@ -66,52 +68,59 @@ int solve_parallel(Board board, int column) {
 
 int solve_opt1(const size_t size) {
 	int array[size];
-	int branch[size];
 	std::vector<bool> visited = std::vector<bool>(size, false);
 	for (int i = 0; i < size; ++i) {
 		array[i] = i;
-		branch[i] = -1;
 	}
-	dfs_permute(array, size, branch, 0, visited);
+	Tree tree = Tree(NULL, 19999);
+	dfs_permute(array, size, &tree, 0, visited);
 
   return nqueens_solutions.get_value();
 }
 
-void dfs_permute(int *numbers, int size, int *branch, int length, std::vector<bool> &visited) {
+void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::vector<bool> visited) {
 	int *next_branch = new int[size];
 
 	// Copy and init board layout for this path
+	const Tree *tmp = parent;
 	for (int i = 0; i < length; ++i) {
-		next_branch[i] = branch[i];
+		next_branch[i] = tmp->value;
+		tmp = tmp->parent;
 	}
 	for (int i = length; i < size; ++i) {
 		next_branch[i] = -1;
 	}
 
-	std::vector<bool> new_visited = std::vector<bool>(visited);
+	{
+		Board board = Board(next_branch, size);
 
-	Board board = Board(next_branch, size);
-
-	// Don't continue down this path of permutations if there's a conflict
-	// This can hugely reduce the problem search space
-	if (!board.validate_nqueens()) {
-		return;
+		// Don't continue down this path of permutations if there's a conflict
+		// This can hugely reduce the problem search space
+		if (!board.validate_nqueens()) {
+			return;
+		}
 	}
 
 	if (length == size) {
 		*nqueens_solutions += 1;
+		delete parent;
 		return;
 	}
 
 	for (int i = 0; i < size; i++) {
 		// For all elements that haven't been used in permutation
-		if (!new_visited[i]) {
+		if (!visited[i]) {
 			// Add to permutation
-			next_branch[length] = numbers[i];
-			new_visited[i] = true;
+			const Tree *node = new Tree(parent, numbers[i]);
+			visited[i] = true;
 			// Permute remaining elements
-			cilk_spawn dfs_permute(numbers, size, next_branch, length+ 1, new_visited);
-			new_visited[i] = false;
+			if (size - length <=2) {
+				// don't create new workers if only two items remain
+				dfs_permute(numbers, size, node, length+ 1, visited);
+			} else {
+				cilk_spawn dfs_permute(numbers, size, node, length+ 1, visited);
+			}
+			visited[i] = false;
 		}
 	}
 	cilk_sync;

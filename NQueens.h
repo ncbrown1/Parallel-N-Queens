@@ -11,8 +11,8 @@ bool place_queen(Board &board, int row, int column);
 
 int solve_serial(Board &board, int column);
 int solve_parallel(Board board, int column);
-int solve_opt1(Board &board, int column);
-int solve_opt2(Board &board, int column);
+int solve_opt1(const size_t size);
+int solve_opt2(Column *last, int column, size_t size);
 
 void dfs_permute(int *numbers, int size, const Tree *tree, int length, std::vector<bool> visited);
 

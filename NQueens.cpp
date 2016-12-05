@@ -72,7 +72,7 @@ int solve_opt1(const size_t size) {
 	for (int i = 0; i < size; ++i) {
 		array[i] = i;
 	}
-	Tree tree = Tree(NULL, 19999);
+	Tree root = Tree(NULL, 19999);
 	dfs_permute(array, size, &tree, 0, visited);
 
   return nqueens_solutions.get_value();
@@ -127,8 +127,45 @@ void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::ve
 }
 
 
-int solve_opt2(Board &board, int column) {
-  return 3;
+int solve_opt2(Column *last, int column, size_t size) {
+    int i, back_n;
+    bool valid;
+    Column *tmp;
+
+    // if we got a solution
+    if (column == size) {
+        delete last;
+        *nqueens_solutions += 1;
+        return 0; // only first call needs access to nqueens_solutions
+    }
+
+    // for each possible queen placement
+    for (i = 0; i < size; i++) {
+        tmp = last;
+        back_n = 1;
+        valid = true;
+        while (tmp != NULL) {
+            if (tmp->value == i || // if in same row
+                tmp->value - back_n == i || // if in left diag
+                tmp->value + back_n == i )  { // if in right diag
+                valid = false; // invalid queen
+                break;
+            }
+            tmp = tmp->prev;
+            back_n += 1;
+        }
+        if (valid) {
+            // check the rest of the board in parallel
+            cilk_spawn solve_opt2(new Column(last, i), column + 1, size);
+        }
+    }
+
+    cilk_sync;
+    if (last != NULL) {
+        delete last;
+        return 0; // only first call needs access to nqueens_solutions
+    }
+    return nqueens_solutions.get_value();
 }
 
 
@@ -139,7 +176,7 @@ int solve(Board &board, int flag) {
     case OPT1:
       return solve_opt1(board.size);
     case OPT2:
-      return solve_opt2(board, 0);
+      return solve_opt2(NULL, 0, board.size);
     case SERIAL: default:
       return solve_serial(board, 0);
   }

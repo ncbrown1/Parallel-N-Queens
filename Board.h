@@ -28,4 +28,11 @@ private:
 	int *queens;
 };
 
+class Column {
+public:
+	Column *prev; // the solution up to this column
+	int value;
+	Column(Column *prev, int value) : prev(prev), value(value) {}
+};
+
 #endif

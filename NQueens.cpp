@@ -1,6 +1,9 @@
 #include "NQueens.h"
 #include <cilk/cilk.h>
 #include <cilk/reducer_opadd.h>
+#include <vector>
+#include <iostream>
+#include "Tree.h"
 
 // global solution count for parallel calls
 cilk::reducer_opadd<double> nqueens_solutions(0);
@@ -64,24 +67,68 @@ int solve_parallel(Board board, int column) {
 
 
 int solve_opt1(const size_t size) {
-	// compute factorial(size)
-	int factorial = 1;
-	for (int i = 1; i <= size; ++i) {
-		factorial *= i;
+	int array[size];
+	std::vector<bool> visited = std::vector<bool>(size, false);
+	for (int i = 0; i < size; ++i) {
+		array[i] = i;
+	}
+	Tree root = Tree(NULL, 19999);
+	dfs_permute(array, size, &root, 0, visited);
+
+  return nqueens_solutions.get_value();
+}
+
+void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::vector<bool> visited) {
+	int *next_branch = new int[size];
+
+	// Copy and init board layout for this path
+	const Tree *tmp = parent;
+	for (int i = length - 1; i >= 0; --i) {
+		next_branch[i] = tmp->value;
+		tmp = tmp->parent;
+	}
+	for (int i = length; i < size; ++i) {
+		next_branch[i] = -1;
 	}
 
-	// Evaluate each board permutation in parallel
-	cilk_for (int i = 0; i < factorial; ++i) {
-		Board board = Board(size);
-		board.init_permutation(i); // unique permutation for each worker
+	{
+		Board board = Board(next_branch, size);
 
-		// Test each queen placement on board to see if there are conflicts
-		if (board.validate_nqueens()) { // TODO maybe change this to just manually check diagonals at some point
-			*nqueens_solutions += 1;
+		// Don't continue down this path of permutations if there's a conflict
+		// This can hugely reduce the problem search space
+		if (length > 0) {
+			const size_t index = length - 1;
+			const int lcount = board.queens_in_ldiagonal(parent->value, index);
+			const int rcount = board.queens_in_rdiagonal(parent->value, index);
+			if ( lcount > 1 || rcount > 1) {
+				return;
+			}
 		}
 	}
 
-  return nqueens_solutions.get_value();
+	if (length == size) {
+		*nqueens_solutions += 1;
+		delete parent;
+		return;
+	}
+
+	for (int i = 0; i < size; i++) {
+		// For all elements that haven't been used in permutation
+		if (!visited[i]) {
+			// Add to permutation
+			const Tree *node = new Tree(parent, numbers[i]);
+			visited[i] = true;
+			// Permute remaining elements
+			if (size - length <=5) {
+				// don't create new workers if only two items remain
+				dfs_permute(numbers, size, node, length+ 1, visited);
+			} else {
+				cilk_spawn dfs_permute(numbers, size, node, length+ 1, visited);
+			}
+			visited[i] = false;
+		}
+	}
+	cilk_sync;
 }
 
 

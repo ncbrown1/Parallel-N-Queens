@@ -1,4 +1,6 @@
 #include "Board.h"
+#include <vector>
+#include "Tree.h"
 
 #define SERIAL 0
 #define PARALLEL 1
@@ -11,5 +13,7 @@ int solve_serial(Board &board, int column);
 int solve_parallel(Board board, int column);
 int solve_opt1(const size_t size);
 int solve_opt2(Column *last, int column, size_t size);
+
+void dfs_permute(int *numbers, int size, const Tree *tree, int length, std::vector<bool> visited);
 
 int solve(Board &board, int flag);

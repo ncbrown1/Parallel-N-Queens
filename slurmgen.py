@@ -7,7 +7,7 @@ import sys
 
 template = """#!/bin/bash
 #SBATCH --job-name="nqueens"
-#SBATCH --output="nqueens.%s.%s.%s.out"
+#SBATCH --output="exp%s/nqueens.%s.%s.out"
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -26,4 +26,4 @@ if len(sys.argv) > 3:
   flag = sys.argv[3]
 else:
   flag = "-p"
-print template % (flag[1:], procs, n, procs, flag, n)
+print template % (flag, procs, n, procs, flag, n)

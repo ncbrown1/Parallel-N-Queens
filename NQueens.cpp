@@ -73,7 +73,7 @@ int solve_opt1(const size_t size) {
 		array[i] = i;
 	}
 	Tree root = Tree(NULL, 19999);
-	dfs_permute(array, size, &tree, 0, visited);
+	dfs_permute(array, size, &root, 0, visited);
 
   return nqueens_solutions.get_value();
 }
@@ -83,7 +83,7 @@ void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::ve
 
 	// Copy and init board layout for this path
 	const Tree *tmp = parent;
-	for (int i = 0; i < length; ++i) {
+	for (int i = length - 1; i >= 0; --i) {
 		next_branch[i] = tmp->value;
 		tmp = tmp->parent;
 	}
@@ -96,8 +96,13 @@ void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::ve
 
 		// Don't continue down this path of permutations if there's a conflict
 		// This can hugely reduce the problem search space
-		if (!board.validate_nqueens()) {
-			return;
+		if (length > 0) {
+			const size_t index = length - 1;
+			const int lcount = board.queens_in_ldiagonal(parent->value, index);
+			const int rcount = board.queens_in_rdiagonal(parent->value, index);
+			if ( lcount > 1 || rcount > 1) {
+				return;
+			}
 		}
 	}
 
@@ -114,7 +119,7 @@ void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::ve
 			const Tree *node = new Tree(parent, numbers[i]);
 			visited[i] = true;
 			// Permute remaining elements
-			if (size - length <=2) {
+			if (size - length <=5) {
 				// don't create new workers if only two items remain
 				dfs_permute(numbers, size, node, length+ 1, visited);
 			} else {

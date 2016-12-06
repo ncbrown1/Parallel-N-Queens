@@ -108,19 +108,20 @@ void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::ve
 
 	if (length == size) {
 		*nqueens_solutions += 1;
-		delete parent;
 		return;
 	}
 
+	std::vector<const Tree *> children;
 	for (int i = 0; i < size; i++) {
 		// For all elements that haven't been used in permutation
 		if (!visited[i]) {
 			// Add to permutation
 			const Tree *node = new Tree(parent, numbers[i]);
+			children.push_back(node);
 			visited[i] = true;
 			// Permute remaining elements
 			if (size - length <=5) {
-				// don't create new workers if only two items remain
+				// don't create new workers if only a few items remain
 				dfs_permute(numbers, size, node, length+ 1, visited);
 			} else {
 				cilk_spawn dfs_permute(numbers, size, node, length+ 1, visited);
@@ -129,6 +130,9 @@ void dfs_permute(int *numbers, int size, const Tree *parent, int length, std::ve
 		}
 	}
 	cilk_sync;
+	for (auto i = children.begin(); i != children.end(); ++i) {
+		delete *i;
+	}
 }
 
 

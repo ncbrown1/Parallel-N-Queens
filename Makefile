@@ -1,6 +1,6 @@
 # Makefile for Parallel-N-Queens
 CC = icc
-CFLAGS = -Wall -O2
+CFLAGS = -Wall -O2 -std=c++11
 
 AR = ar
 ARFLAGS = cr
